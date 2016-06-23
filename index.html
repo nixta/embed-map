@@ -24,16 +24,18 @@
       "esri/Map",
       "esri/views/SceneView",
       "esri/Camera",
+      "esri/widgets/Zoom",
+      "esri/widgets/Compass",
       "dojo/domReady!"
-    ], function(Map, SceneView, Camera) {
+    ], function(Map, SceneView, Camera, Zoom, Compass) {
   
         var startTilt = 30,
             targetTilt = 0,
             tilt = startTilt,
             startZ = 50000000, 
-            targetZ = 2000,
+            targetZ = 5000,
             z = startZ,
-            startFOV = 170, 
+            startFOV = 177, 
             targetFOV = 55,
             fov = startFOV,
             step = 1,
@@ -62,6 +64,19 @@
       
       view.ui.remove(["attribution","zoom","compass"]);
       
+      var readyHandle = view.watch("ready", function(newVal, oldVal, property, object) {
+        if (newVal === true && oldVal === false) {
+          //alert("up");
+          readyHandle.remove();
+          var updateHandle = view.watch("stationary", function(newVal2, oldVal2, property2, object2) {
+            if (newVal2 === false && oldVal2 === true) {
+              updateHandle.remove();
+              window.setTimeout(function() {flyThroughSpace()}, 1000);
+            }
+          });
+        }
+      });
+      
       function getAnimProperty(timeStamp, startTime, duration, startValue, targetValue) {
         var limitFunc = startValue < targetValue ? Math.min : Math.max,
             progress = timeStamp - startTime;
@@ -69,7 +84,7 @@
         return limitFunc(startValue + ((targetValue - startValue) * (progress / duration)), targetValue);
       }
       
-      view.on('click', function(evt) {
+      function flyThroughSpace() {
         
         window.requestAnimationFrame(nextCamera); 
         
@@ -94,14 +109,23 @@
             fov: fov
           });
           
+          //view.goTo(newCamera, {
+          //  animate: false
+          //}).then(function() {
+          //  if (progress < duration) {
+          //    window.requestAnimationFrame(nextCamera);
+          //  }
+          //});
+
+          
           view.camera = newCamera;
           if (progress < duration) {
             window.requestAnimationFrame(nextCamera);
           } else {
-            view.ui.remove(["attribution","zoom","compass"]);
+            view.ui.add([new Zoom({view:view}), new Compass({view: view})], "top-left");
           }
         }
-      });
+      }
   
     });
   </script>
