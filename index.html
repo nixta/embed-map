@@ -97,7 +97,9 @@
           view.camera = newCamera;
           if (progress < duration) {
             window.requestAnimationFrame(nextCamera);
-          }          
+          } else {
+            view.ui.remove(["attribution","zoom","compass"]);
+          }
         }
       });
   
