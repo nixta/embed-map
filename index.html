@@ -23,11 +23,12 @@
     require([
       "esri/Map",
       "esri/views/SceneView",
+      "esri/layers/SceneLayer",
       "esri/Camera",
       "esri/widgets/Zoom",
       "esri/widgets/Compass",
       "dojo/domReady!"
-    ], function(Map, SceneView, Camera, Zoom, Compass) {
+    ], function(Map, SceneView, SceneLayer, Camera, Zoom, Compass) {
   
         var startTilt = 30,
             targetTilt = 0,
@@ -96,11 +97,11 @@
           z = getAnimProperty(timeStamp, start, duration, startZ, targetZ); 
           fov = getAnimProperty(timeStamp, start, duration, startFOV, targetFOV); 
           
-          //console.log("" + tilt + " ... " + z + " ... " + fov);
+          console.log("" + tilt + " ... " + z + " ... " + fov);
           
           var newCamera = Camera({
             position: {
-              x: -73.97798,
+              x: -73.97798, 
               y: 40.73169,
               z: z
             },
@@ -123,6 +124,10 @@
             window.requestAnimationFrame(nextCamera);
           } else {
             view.ui.add([new Zoom({view:view}), new Compass({view: view})], "top-left");
+            var layer = new SceneLayer({
+              url: "https://nyc3d-ags-ms.esri.com/arcgis/rest/services/Hosted/DoITT_Bld3D_MN_Web/SceneServer"
+            });
+            map.layers.add(layer);
           }
         }
       }
